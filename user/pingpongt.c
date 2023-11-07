@@ -1,4 +1,4 @@
-// pingpong.c for xv6 (assignment #1 for CSC.T371)
+// pingpongt.c for xv6 (assignment #1 for CSC.T371)
 // name: Taisuke Sakugawa
 // id: 21B30362
 
@@ -64,4 +64,12 @@ int main(int argc, char *argv[]) {
         }
     }
     exit(0);
+}
+
+
+
+int get_time(){
+    struct timeval tv;
+    gettimeofday(&tv,NULL);
+    return tv.tv_sec + (double)tv.tv_usec*le-6;
 }
