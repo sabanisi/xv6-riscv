@@ -135,6 +135,18 @@ int main(int argc, char *argv[]) {
 \includegraphics[width=0.8\linewidth]{image/figure1.png}
 \end{figure}
 
+\section{問2}
+\subsection{コードの説明}
+まず、第10回の講義で説明していただいたシステムコールgettimeofday()を使用できるように、ブランチrtcをhw1にマージした。
+
+次に、問1で使用したコードのうち、uptime()を使用している箇所(1-1中のコードの11,39行目)をgettimeofday()に書き換えた。
+
+\subsection{実行結果}
+実行結果は以下である。
+
+\begin{figure}[H]
+\includegraphics[width=0.8\linewidth]{image/figure2.png}
+\end{figure}
 
 \section{参考文献}
 プロセス間通信について、以下のWebサイトを参考にした。

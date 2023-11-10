@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     int n = atoi(argv[1]);
 
     // tick value before starting rounds
-    int start_tick = uptime();
+    int start_time = gettimeofday();
 
     int pp[2],qq[2];
     unsigned char buf[1];
@@ -46,9 +46,9 @@ int main(int argc, char *argv[]) {
         wait(&status);
 
         // tick value after ending rounds
-        int end_tick = uptime();
+        int end_time = gettimeofday();
         // print # of ticks in N rounds
-        printf("# of ticks in %d rounds: %d\n", n, end_tick - start_tick);
+        printf("# of times[sec] in %d rounds: %d\n", n, end_time - start_time);
         exit(0);
     }else{
         //child process
@@ -64,12 +64,4 @@ int main(int argc, char *argv[]) {
         }
     }
     exit(0);
-}
-
-
-
-int get_time(){
-    struct timeval tv;
-    gettimeofday(&tv,NULL);
-    return tv.tv_sec + (double)tv.tv_usec*le-6;
 }
