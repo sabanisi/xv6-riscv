@@ -13,7 +13,6 @@
 #define UNUSED 0
 #define RUNNABLE 1
 #define RUNNING 2
-#define SLEEP 3
 
 struct context {
     uint64 ra;
@@ -34,24 +33,25 @@ struct context {
     uint64 s11;
 };
 
-struct uthread{
+struct uthread {
     int tid;
     int state;
     uint64 stack[STACK_DEPTH];
     struct context my_context;
+
     void (*fun)();
 };
 
-void swtch(struct context*, struct context*);
+void swtch(struct context *, struct context *);
 
 struct uthread uthreads[MAX_THREADS];
 struct uthread *current_thread;
 struct context start_context;
 int current_tid;
 
-int make_uthread(void (*fun)()){
-    for(int i = 0; i < MAX_THREADS; i++){
-        if(uthreads[i].state == UNUSED){
+int make_uthread(void (*fun)()) {
+    for (int i = 0; i < MAX_THREADS; i++) {
+        if (uthreads[i].state == UNUSED) {
             current_tid = i;
             break;
         }
@@ -61,58 +61,57 @@ int make_uthread(void (*fun)()){
     thread->tid = current_tid;
     thread->state = RUNNABLE;
     thread->fun = fun;
-    thread->my_context.ra = (uint64)fun;
+    thread->my_context.ra = (uint64) fun;
     thread->my_context.sp = (uint64)(thread->stack + STACK_DEPTH);
     uthreads[current_tid] = *thread;
 
-    current_tid++;
     return thread->tid;
 }
 
-void start_uthreads(){
+void start_uthreads() {
     current_thread = &uthreads[0];
     current_thread->state = RUNNING;
 
-    start_context.ra = (uint64)start_uthreads;
+    start_context.ra = (uint64) start_uthreads;
     start_context.sp = (uint64)(current_thread->stack + STACK_DEPTH);
     swtch(&start_context, &current_thread->my_context);
 }
 
-void scheduler(){
+void scheduler() {
     struct uthread *t = 0;
     struct uthread *prev = current_thread;
     int i;
 
-    for(i = current_thread->tid+1; i <= current_tid + MAX_THREADS; i++){
-        if(i >= MAX_THREADS) i -= MAX_THREADS;
-        if(uthreads[i].state == RUNNABLE) {
+    for (i = current_thread->tid + 1; i <= current_tid + MAX_THREADS; i++) {
+        if (i >= MAX_THREADS) i -= MAX_THREADS;
+        if (uthreads[i].state == RUNNABLE) {
             t = &uthreads[i];
             break;
         }
 
-        if(i == current_thread->tid){
+        if (i == current_thread->tid) {
             swtch(&prev->my_context, &start_context);
             return;
         }
     }
 
     t->state = RUNNING;
-    if(t!=current_thread){
+    if (t != current_thread) {
         current_thread = t;
         swtch(&prev->my_context, &current_thread->my_context);
     }
 }
 
-void yield(){
+void yield() {
     current_thread->state = RUNNABLE;
     scheduler();
 }
 
-int mytid(){
+int mytid() {
     return current_thread->tid;
 }
 
-void uthread_exit(){
+void uthread_exit() {
     current_thread->state = UNUSED;
     free(current_thread);
     scheduler();

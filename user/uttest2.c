@@ -13,16 +13,17 @@ void foo() {
         printf("foo (tid=%d): %d\n", mytid(), c);
         c += 1;
         yield();
-        if(c > 6)uthread_exit();
+        if (c > 6)uthread_exit();
     }
 }
+
 void bar() {
     int c = 0;
     for (;;) {
         printf("bar (tid=%d): %d\n", mytid(), c);
         yield();
         c += 2;
-        if(c > 8)uthread_exit();
+        if (c > 8)uthread_exit();
     }
 }
 
@@ -37,15 +38,18 @@ void baz() {
     for (;;) {
         baz_sub(&c);
         baz_sub(&c);
-        if(c > 10) uthread_exit();
+        if (c > 10) uthread_exit();
     }
 }
 
 int main() {
     make_uthread(foo);
+    make_uthread(foo);
     make_uthread(bar);
     make_uthread(baz);
     start_uthreads();
-    printf("main (tid=%d): end\n", mytid());
+    make_uthread(bar);
+    make_uthread(baz);
+    start_uthreads();
     exit(0);
 }

@@ -3,26 +3,26 @@
 
 // Saved registers for kernel context switches. (from kernel/proc.h)
 struct context {
-  uint64 ra;
-  uint64 sp;
+    uint64 ra;
+    uint64 sp;
 
-  // callee-saved
-  uint64 s0;
-  uint64 s1;
-  uint64 s2;
-  uint64 s3;
-  uint64 s4;
-  uint64 s5;
-  uint64 s6;
-  uint64 s7;
-  uint64 s8;
-  uint64 s9;
-  uint64 s10;
-  uint64 s11;
+    // callee-saved
+    uint64 s0;
+    uint64 s1;
+    uint64 s2;
+    uint64 s3;
+    uint64 s4;
+    uint64 s5;
+    uint64 s6;
+    uint64 s7;
+    uint64 s8;
+    uint64 s9;
+    uint64 s10;
+    uint64 s11;
 };
 
 // swtch.S (from kernel/defs.h)
-void swtch(struct context*, struct context*);
+void swtch(struct context *, struct context *);
 
 struct context foo_context;
 struct context bar_context;
@@ -61,9 +61,9 @@ void baz() {
 
 int main() {
     // setting up initial contexts
-    bar_context.ra = (uint64)bar;
+    bar_context.ra = (uint64) bar;
     bar_context.sp = (uint64)(bar_stack + STACK_DEPTH);
-    baz_context.ra = (uint64)baz;
+    baz_context.ra = (uint64) baz;
     baz_context.sp = (uint64)(baz_stack + STACK_DEPTH);
     // start from foo
     foo();

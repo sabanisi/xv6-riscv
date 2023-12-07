@@ -14,6 +14,7 @@ void foo() {
         yield();
     }
 }
+
 void bar() {
     int c = 0;
     for (;;) {
