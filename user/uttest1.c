@@ -5,6 +5,7 @@
 #include "kernel/types.h"
 #include "kernel/stat.h"
 #include "user/user.h"
+#include "user/uthreads.h"
 
 void foo() {
     int c = 0;
@@ -39,9 +40,10 @@ void baz() {
 }
 
 int main() {
-    make_uthread(foo);
+    printf("C");
+    /*make_uthread(foo);
     make_uthread(bar);
     make_uthread(baz);
-    start_uthreads();
+    start_uthreads();*/
     exit(0);
 }
