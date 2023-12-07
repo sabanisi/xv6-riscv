@@ -7,8 +7,8 @@
 #include "user/uthreads.h"
 
 
-#define STACK_SIZE 4096
-#define MAX_THREADS 10000
+#define STACK_DEPTH 512
+#define MAX_THREADS 4
 
 #define UNUSED 0
 #define RUNNABLE 1
@@ -37,7 +37,7 @@ struct context {
 struct uthread{
     int tid;
     int state;
-    uint64 stack[STACK_SIZE];
+    uint64 stack[STACK_DEPTH];
     struct context my_context;
     void (*fun)();
 };
@@ -49,40 +49,45 @@ struct uthread *current_thread;
 int current_tid;
 
 int make_uthread(void (*fun)()){
-   struct uthread *t;
-   printf("A");
-    for(t = uthreads; t < uthreads + MAX_THREADS; t++){
-        printf("B");
-        if(t->state == UNUSED){
-            t->tid = current_tid++;
-            t->state = RUNNABLE;
-            t->fun = fun;
-            t->my_context.ra = (uint64)fun;
-            t->my_context.sp = (uint64)(t->stack + STACK_SIZE);
-            return t->tid;
-        }
-    }
-    return -1;
+    if(current_tid >= MAX_THREADS) return -1;
+
+    struct uthread *thread = malloc(sizeof(struct uthread));
+    thread->tid = current_tid;
+    thread->state = RUNNABLE;
+    thread->fun = fun;
+    thread->my_context.ra = (uint64)fun;
+    thread->my_context.sp = (uint64)(thread->stack + STACK_DEPTH);
+    uthreads[current_tid] = *thread;
+
+    current_tid++;
+    return thread->tid;
 }
 
 void start_uthreads(){
-    current_thread = uthreads;
+    current_thread = &uthreads[0];
     current_thread->state = RUNNING;
     current_thread->fun();
 }
 
 void yield(){
-    struct uthread *t;
+    struct uthread *t = 0;
+    struct uthread *prev = current_thread;
+    int i;
     current_thread->state = RUNNABLE;
 
     //scheduler
-    for(t = current_thread + 1; t< current_thread + MAX_THREADS; t++){
-        if(t->state == RUNNABLE){
-            current_thread = t;
-            current_thread->state = RUNNING;
-            swtch(&t->my_context, &current_thread->my_context);
-            return;
+    for(i = current_thread->tid+1; i <= current_tid + MAX_THREADS; i++){
+        if(i >= MAX_THREADS) i -= MAX_THREADS;
+        if(uthreads[i].state == RUNNABLE) {
+            t = &uthreads[i];
+            break;
         }
+    }
+
+    t->state = RUNNING;
+    if(t!=current_thread){
+        current_thread = t;
+        swtch(&prev->my_context, &current_thread->my_context);
     }
 }
 

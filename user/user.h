@@ -39,7 +39,3 @@ void free(void*);
 int atoi(const char*);
 int memcmp(const void *, const void *, uint);
 void *memcpy(void *, const void *, uint);
-int make_uthread(void (*fun)());
-void start_uthreads();
-void yield();
-int mytid();
