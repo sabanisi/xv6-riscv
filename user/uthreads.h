@@ -9,5 +9,6 @@ int make_uthread(void (*fun)());
 void start_uthreads();
 void yield();
 int mytid();
+void uthread_exit();
 
 #endif //XV6_RISCV_UTHREADS_H

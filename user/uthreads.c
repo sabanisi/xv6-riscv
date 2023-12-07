@@ -46,10 +46,16 @@ void swtch(struct context*, struct context*);
 
 struct uthread uthreads[MAX_THREADS];
 struct uthread *current_thread;
+struct context start_context;
 int current_tid;
 
 int make_uthread(void (*fun)()){
-    if(current_tid >= MAX_THREADS) return -1;
+    for(int i = 0; i < MAX_THREADS; i++){
+        if(uthreads[i].state == UNUSED){
+            current_tid = i;
+            break;
+        }
+    }
 
     struct uthread *thread = malloc(sizeof(struct uthread));
     thread->tid = current_tid;
@@ -66,21 +72,27 @@ int make_uthread(void (*fun)()){
 void start_uthreads(){
     current_thread = &uthreads[0];
     current_thread->state = RUNNING;
-    current_thread->fun();
+
+    start_context.ra = (uint64)start_uthreads;
+    start_context.sp = (uint64)(current_thread->stack + STACK_DEPTH);
+    swtch(&start_context, &current_thread->my_context);
 }
 
-void yield(){
+void scheduler(){
     struct uthread *t = 0;
     struct uthread *prev = current_thread;
     int i;
-    current_thread->state = RUNNABLE;
 
-    //scheduler
     for(i = current_thread->tid+1; i <= current_tid + MAX_THREADS; i++){
         if(i >= MAX_THREADS) i -= MAX_THREADS;
         if(uthreads[i].state == RUNNABLE) {
             t = &uthreads[i];
             break;
+        }
+
+        if(i == current_thread->tid){
+            swtch(&prev->my_context, &start_context);
+            return;
         }
     }
 
@@ -91,8 +103,19 @@ void yield(){
     }
 }
 
+void yield(){
+    current_thread->state = RUNNABLE;
+    scheduler();
+}
+
 int mytid(){
     return current_thread->tid;
+}
+
+void uthread_exit(){
+    current_thread->state = UNUSED;
+    free(current_thread);
+    scheduler();
 }
 
 
